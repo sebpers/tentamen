@@ -1,0 +1,206 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: HomeNet
+  description: |
+    An api that implements sales from the broker posts, delete, get and put it to mongoDb.
+     
+    
+    The purpose of this API is to let the broker share post and change sales for sale.
+     
+    license:
+    name: MIT
+servers:
+- url: http://localhost:3000
+paths:
+  /listings:
+    get:
+      summary: List all sales
+      tags:
+      - sales
+      parameters:
+      - name: location
+        in: query
+        description: filter by location
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Array of sales
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ResponseSales"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      summary: Create a Sale
+      operationId: createSale
+      tags:
+      - sales
+      requestBody:
+        description: the sale to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sale'
+      responses:
+        '201':
+          description: The created sale
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ResponseSale"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /listings/{listingId}:
+    get:
+      summary: Get a Sale by ID
+      operationId: getSale
+      tags:
+        - sales
+      parameters:
+      - name: listingId
+        in: path
+        description: sale id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The found sale
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ResponseSale"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: Replace a Sale
+      operationId: putSale
+      tags:
+      - sales
+      parameters:
+      - name: listingId
+        in: path
+        description: sale id
+        required: true
+        schema:
+          type: string
+      requestBody:
+        description: the sale to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Sale'
+      responses:
+        '200':
+          description: The replaced sale
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ResponseSale"
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    delete:
+      summary: Delete a Sale
+      operationId: deleteSale
+      tags:
+        - sales
+      parameters:
+      - name: listingId
+        in: path
+        description: sale id
+        required: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: The deleted sale
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/ResponseSale"
+        '204':
+          description: No change (nothing was deleted)
+        default:
+          description: unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    Sale:
+      properties:
+        coordinates:
+          properties:
+            lat:
+              type: number
+            lng:
+              type: number
+        address:
+          properties:
+            street:
+              type: string
+            number:
+              type: number
+        summary:
+          properties:
+            condo:
+              type: boolean
+            villa:
+              type: boolean
+            price:
+              type: number
+            fee:
+              type: number
+            bidding: 
+              type: boolean
+        location:
+            type: string
+            
+    ResponseSale:
+      allOf:
+      - $ref: "#/components/schemas/Sale"
+      - properties:
+          id:
+            type: integer
+          _id:
+            type: string
+            format: uuid
+    ResponseSales:
+      type: array
+      items:
+        $ref: "#/components/schemas/ResponseSale"
+
+    Error:
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

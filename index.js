@@ -2,7 +2,7 @@ const express = require("express");
 
 const routes = require("./routes")
 const db = require("./models")
-
+var cors = require('cors')
 const app = express();
 
 // environment variable PORT or 3000 if unset
@@ -12,7 +12,7 @@ const port = process.env.PORT || 3000;
 // middlewares are executed in the order added, so add before routes
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-
+app.use(cors())
 app.use((error, req, res, next) => {
   if (res.headersSent) {
     return next(err)
